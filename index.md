@@ -23,7 +23,9 @@
 </style>
 
 <body>
-    <svg id=viewBox ></svg>
+    <div>
+        <svg id=viewBox ></svg>
+    </div>
     <p style="color:crimson">Red = Dislike</p>
     <p style="color:chartreuse">Green = Like</p>
     <p style="color:hotpink">Pink = Love</p>
