@@ -1,5 +1,7 @@
 <style>
     :root{
+        /* Background image from gamepedia.
+        This is changed by  changeBiome(biome):Line 466 */
         --bgi: url("https://gamepedia.cursecdn.com/terraria_gamepedia/thumb/b/bc/BiomeBannerEnchantedSwordShrine.png/300px-BiomeBannerEnchantedSwordShrine.png?version=e8e12c2184b05778eece91c1fee938ab");
     }
     body{
@@ -31,38 +33,30 @@
     .pg{
         transform: rotate(10deg);
         filter: hue-rotate(45deg);
-        
     }
-
     table, td {
     border: 1px solid #333;
     text-align: center;
     white-space: pre-wrap;
     line-height: 25px;
     }
-    table{/*width: 90%;*/}
     td{font-weight: 100; padding: 10px 20px;}
     th{font-weight: 700; padding: 10px 20px; font-size: 24px;}
-
     thead, tfoot {
     background-color: #333;
     color: #fff;
     text-align: center;
-    /*width: 25%;*/
     }
-
     .loves{color:hotpink;}
     .likes{color:chartreuse;}
     .dislikes{color:rgb(220, 93, 20);}
     .hates{color:darkred;}
-
 </style>
 <title> Circle of Friendship </title>
 <body>
     <div id="body">
-        
+      <!-- This div is an anchor point for the SVG. I was having trouble with Github pages and this patched up the problem  -->
     </div>
-
     <table>
         <thead>
             <tr><th colspan="4" id="NPCName"> Select an NPC</th></tr>
@@ -80,349 +74,316 @@
                 <td class="tDislike dislikes"> </td>
                 <td class="tHate hates"> </td>
             </tr>
-            <!--tr>
-                <td>Goblin Tinkerer</td>
-                <td class="tLike likes">Goblin Tinkerer</td>
-                <td>Goblin Tinkerer</td>
-                <td>Goblin Tinkerer</td>
-            </tr>
-            <tr>
-                <td>Goblin Tinkerer</td>
-                <td class="tLike likes">Goblin Tinkerer</td>
-                <td>Goblin Tinkerer</td>
-                <td>Goblin Tinkerer</td>
-            </tr-->
         </tbody>
-
     </table>
-    
-    <!--<p id="NPCName" style="color:white">Select an NPC</p>
-    <p id="NPCLikes" style="color:chartreuse"> Likes</p>
-    <p style="color:hotpink">Pink = Love</p>
-    <p style="color:chartreuse">Green = Like</p>
-    <p style="color:crimson">Red = Dislike</p>
-    <p style="color:darkred">Dark Red = Hate</p>-->
 </body>
-
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<!-- I added jQuery super late into to the project so I only used it for like one thing :( -->
 <script>
-    let body = document.getElementById("body")
-    let viewBox = document.createElementNS("http://www.w3.org/2000/svg","svg")
-    viewBox.setAttribute("id","viewBox");
-    let ref = body.getElementsByTagName("p")[0]
-    body.insertBefore(viewBox, ref)
-    //body.appendChild(viewBox)
-    viewBox = document.getElementById("viewBox");
-    let size = 5; // Change the viewbox size and the size here to change the size of the grid
-    viewBox.setAttribute("viewBox", `0 0 ${size} ${size}`);
+  /*
+    Set of instructions to add the SVG view box too the page and set the size.
+  */
+  let body = document.getElementById("body");
+  let viewBox = document.createElementNS("http://www.w3.org/2000/svg","svg");
+  viewBox.setAttribute("id","viewBox");
+  let ref = body.getElementsByTagName("p")[0]
+  body.insertBefore(viewBox, ref)
+  viewBox = document.getElementById("viewBox");
+  let size = 5;
+  viewBox.setAttribute("viewBox", `0 0 ${size} ${size}`);
 
+  /*
+    Draw a line of some color from the start point to the end point.
+  */
+  const drawLineByDegree = (points, start, end, color) => {
+    /*
+      Define the start point,
 
-    const radianTest = (degrees) => {
-        let radius = 1;
-        let radians = degrees * Math.PI / 180;
-        let x = Math.cos(radians)/radius;
-        let y = Math.sin(radians)/radius;
+      Define the end point,
 
-        let point = document.createElementNS("http://www.w3.org/2000/svg","circle");
-        point.setAttribute("cx", x + (size/2) );
-        point.setAttribute("cy", y + (size/2) );
-        point.setAttribute("r",.1);
-        point.setAttribute("fill","chartreuse");
-        viewBox.appendChild(point);
-    }
+      Define a point between the 2 given points and the center that will act as the anchor for the quadratic curve.
+    */
+    let radians = (start * (360 / points) ) * Math.PI / 180;
+    let startX = Math.cos(radians) + (size/2);
+    let startY = Math.sin(radians) + (size/2);
 
-    const radianText = (degrees) => {
-        let radius = 1;
-        let radians = degrees * Math.PI / 180;
-        let x = Math.cos(radians)/radius;
-        let y = Math.sin(radians)/radius;
+    radians = (end * (360 / points) ) * Math.PI / 180;
+    let endX = Math.cos(radians) + (size/2);
+    let endY = Math.sin(radians) + (size/2);
 
-        let label = document.createElementNS("http://www.w3.org/2000/svg","text");
-        label.setAttribute("x", x + (size/2) );
-        label.setAttribute("y", y + (size/2) );
-        label.textContent = (degrees/360)*25;
-        label.setAttribute("fill","black");
-        viewBox.appendChild(label);
-    }
+    let midX = (size/2);
+    let midY = (size/2);
 
-    const drawLables = (n) => {
-        for(let p = 0; p < n; p++){
-            radianText(p * (360 /n))
-        }
-    }
-
-    const drawNPoints = (n) => {
-        for(let p = 0; p < n; p++){
-            radianTest(p * (360 /n))
-        }
-    }
-
-    const drawCenter = (sizeVariable) => {
-        let point = document.createElementNS("http://www.w3.org/2000/svg","circle");
-        point.setAttribute("cx", sizeVariable/2 );
-        point.setAttribute("cy", sizeVariable/2 );
-        point.setAttribute("r", 0.1);
-        point.setAttribute("fill","gold");
-        viewBox.appendChild(point);
-    }
-
-    const drawLineByDegree = (points, start, end, color) => {
-        let radians = (start * (360 / points) ) * Math.PI / 180;
-        let startX = Math.cos(radians) + (size/2);
-        let startY = Math.sin(radians) + (size/2);
-        
-        radians = (end * (360 / points) ) * Math.PI / 180;
-        let endX = Math.cos(radians) + (size/2);
-        let endY = Math.sin(radians) + (size/2);
-       
-        let midX = (size/2);
-        let midY = (size/2);
-
-
-        let magX = startX - (startX - endX)/2;
-        magX = magX - (magX - midX)/2;
-        let magY = startY - (startY - endY)/2;
-        magY = magY - (magY - midY)/2;
-
-        let point = document.createElementNS("http://www.w3.org/2000/svg","circle");
-        point.setAttribute("cx",magX);
-        point.setAttribute("cy",magY);
-        point.setAttribute("r",.1);
-        point.setAttribute("fill","#0ff");
-        //viewBox.appendChild(point)
-
-        let line = document.createElementNS("http://www.w3.org/2000/svg","path");
-        line.setAttribute("d",`M${startX} ${startY} Q ${magX} ${magY} ${endX} ${endY}`);
-        // Swap the magX and magY for midX and midY to remove the magnitude scaling that I worked so hard to apply. 
-        line.setAttribute("stroke",color);
-        line.setAttribute("class","line");
-        line.setAttribute("stroke-width",0.05);
-        line.setAttribute("fill","none")
-        viewBox.appendChild(line);
-    }
-
-    const drawBox = (points, start, length, colour) => {
-
-        //radianTest(start * (360/25));
-        //radianTest((start + length) * (360/25));
-        start -= 1.5
-        length -= 0.05
-        let radius = (size/2);
-        let offset = 0.65;
-        let radiansAD = (start * (360 / points) ) * Math.PI / 180;
-        let aX = Math.cos(radiansAD)/1.05 + radius;
-        let aY = Math.sin(radiansAD)/1.05 + radius;
-        let dX = (Math.cos(radiansAD)/offset) + radius;
-        let dY = (Math.sin(radiansAD)/offset) + radius;
-
-        radiansBC = ((start + length) * (360 / points)) * Math.PI / 180;
-        let bX = Math.cos(radiansBC)/1.05 + radius;
-        let bY = Math.sin(radiansBC)/1.05 + radius;
-        let cX = (Math.cos(radiansBC)/offset) + radius;
-        let cY = (Math.sin(radiansBC)/offset) + radius;
-        
-        // Maybe I could use the little q and change my math slightly to a relative offset instead of an absolute offset?
-        radiansQ = ((start + (length/2)) * (360 / points)) * Math.PI / 180;
-        let abX = Math.cos(radiansQ)/1.05 + radius;
-        let abY = Math.sin(radiansQ)/1.05 + radius;
-        let cdX = (Math.cos(radiansQ)/offset) + radius;
-        let cdY = (Math.sin(radiansQ)/offset) + radius;
-        console.log(aX)
-        //radianTest((start + (length/2)) * (360/25));
-
-        console.log(
-            ` Points:
-            a:${aX},${aY}
-            b:${bX},${bY}
-            c:${cX},${cY}
-            d:${dX},${dY}
-            Q1:${abX}, ${abY}
-            Q2:${cdX}, ${cdY}
-            `
-        )
-        
-        //let aX; let aY; // initial point, based on start
-        //let bX; let bY; // some number of points away from [a]
-        //let cX; let cY; // some const width from [b]
-        //let dX; let dY; // some const width from [a]
-        
-
-        let line = document.createElementNS("http://www.w3.org/2000/svg","path");
-        line.setAttribute("d",`M${aX} ${aY} Q${abX} ${abY} ${bX} ${bY} L${cX} ${cY}Q${cdX} ${cdY} ${dX} ${dY}L${aX} ${aY}`);
-        line.setAttribute("onclick",`drawNPC(npcs[${parseInt(start+0.5)}])`)
-        line.style.cursor = "pointer";
-        line.setAttribute("stroke","none");
-        line.setAttribute("stroke-width",0.01);
-        line.setAttribute("fill",colour)
-        viewBox.appendChild(line);
-    };
+    let magX = startX - (startX - endX)/2;
+    magX = magX - (magX - midX)/2;
+    let magY = startY - (startY - endY)/2;
+    magY = magY - (magY - midY)/2;
 
     /*
-        Okay, so. 
-        To make the boxes I could use a path:
-            a b  do Q from a to b, line b to d
-            c d  do Q from d to c, line c to a
+      Draw the line given the start, end, and magnitude.
     */
+    let line = document.createElementNS("http://www.w3.org/2000/svg","path");
+    line.setAttribute("d",`M${startX} ${startY} Q ${magX} ${magY} ${endX} ${endY}`);
+    // Swap the magX and magY for midX and midY to remove the magnitude scaling that I worked so hard to apply.
+    line.setAttribute("stroke",color);
+    line.setAttribute("class","line");
+    line.setAttribute("stroke-width",0.05);
+    line.setAttribute("fill","none")
+    viewBox.appendChild(line);
+  };
 
-    //drawCenter(size);
-    //drawNPoints(25);
-    //drawLables(25);
+  /*
+    Draw a curved box of some color, given a start point and length.
+  */
+  const drawBox = (points, start, length, colour) => {
+    /*
+      Define the 4 points to make a square,
 
-    for(let i = 0; i < 25; i++){
-        let color;
-        switch(i){
-        case 24:
-        case 0:
-        case 1:
-        case 2:
-            color = "aquamarine"; break;
-        case 3:
-        case 4:
-        case 5: 
-            color = "olivedrab"; break;
-        case 6:
-        case 7:
-        case 8: 
-            color = "deepskyblue"; break;
-        case 9:
-        case 10:
-        case 11: 
-            color = "gold"; break;
-        case 12:
-        case 13:
-        case 14: 
-            color = "slategrey"; break;
-        case 15: 
-            color = "royalblue"; break;
-        case 16:
-        case 17:
-        case 18:
-        case 19: 
-            color = "forestgreen"; break;
-        case 20:
-        case 21:
-        case 22:
-        case 23: 
-            color = "pink"; break;
+      Define the curve of the box.
+    */
+    start -= 1.5
+    length -= 0.05
+    let radius = (size/2);
+    let offset = 0.65;
+    let radiansAD = (start * (360 / points) ) * Math.PI / 180;
+    let aX = Math.cos(radiansAD)/1.05 + radius;
+    let aY = Math.sin(radiansAD)/1.05 + radius;
+    let dX = (Math.cos(radiansAD)/offset) + radius;
+    let dY = (Math.sin(radiansAD)/offset) + radius;
+
+    radiansBC = ((start + length) * (360 / points)) * Math.PI / 180;
+    let bX = Math.cos(radiansBC)/1.05 + radius;
+    let bY = Math.sin(radiansBC)/1.05 + radius;
+    let cX = (Math.cos(radiansBC)/offset) + radius;
+    let cY = (Math.sin(radiansBC)/offset) + radius;
+
+    radiansQ = ((start + (length/2)) * (360 / points)) * Math.PI / 180;
+    let abX = Math.cos(radiansQ)/1.05 + radius;
+    let abY = Math.sin(radiansQ)/1.05 + radius;
+    let cdX = (Math.cos(radiansQ)/offset) + radius;
+    let cdY = (Math.sin(radiansQ)/offset) + radius;
+
+
+    /*
+      Draw the box given the 4 points.
+    */
+    let line = document.createElementNS("http://www.w3.org/2000/svg","path");
+    line.setAttribute("d",`M${aX} ${aY} Q${abX} ${abY} ${bX} ${bY} L${cX} ${cY}Q${cdX} ${cdY} ${dX} ${dY}L${aX} ${aY}`);
+    line.setAttribute("onclick",`drawNPC(npcs[${parseInt(start+0.5)}])`)
+    line.style.cursor = "pointer";
+    line.setAttribute("stroke","none");
+    line.setAttribute("stroke-width",0.01);
+    line.setAttribute("fill",colour)
+    viewBox.appendChild(line);
+  };
+
+  /*
+    Loop to create the 25 boxes and colours them
+  */
+  for(let i = 0; i < 25; i++){
+    let color;
+    switch(i){
+    case 24:
+    case 0:
+    case 1:
+    case 2:
+        color = "aquamarine"; break;
+    case 3:
+    case 4:
+    case 5:
+        color = "olivedrab"; break;
+    case 6:
+    case 7:
+    case 8:
+        color = "deepskyblue"; break;
+    case 9:
+    case 10:
+    case 11:
+        color = "gold"; break;
+    case 12:
+    case 13:
+    case 14:
+        color = "slategrey"; break;
+    case 15:
+        color = "royalblue"; break;
+    case 16:
+    case 17:
+    case 18:
+    case 19:
+        color = "forestgreen"; break;
+    case 20:
+    case 21:
+    case 22:
+    case 23:
+        color = "pink"; break;
+    }
+    drawBox(25, i, 1, color);
+  }
+
+  /*
+    Variables to store the line-colours
+  */
+  let love = "hotpink";
+  let like = "chartreuse";
+  let dislike = "rgb(220, 93, 20)";
+  let hate = "darkred";
+
+  /*
+    NPC Class
+  */
+  function NPC (loves, likes, dislikes, hates, me, name, imgUrl, biome){
+    /*
+      loves : Who the character loves
+      likes : Who the character likes
+      dislikes : Who the character dislikes
+      hates : Who the character hates
+      me : Character's index
+      name : Character's name
+      imgUrl : Character's sprite // from Gamepedia
+      biome : Character's prefered biome
+    */
+    this.loves = loves,
+    this.likes = likes,
+    this.dislikes = dislikes,
+    this.hates = hates,
+    this.me = me,
+    this.name = name,
+    this.imgUrl = imgUrl,
+    this.biome = biome
+  };
+
+  /*
+    List of NPCs
+  */
+  const npcs = {
+    // Snow part 2
+    0:mechanic = new NPC ( [11], [24], [10], [13], 0, "Mechanic","https://gamepedia.cursecdn.com/terraria_gamepedia/5/55/Mechanic.png?version=ee3e7ebf0b4fe821b1387a79fef7fba5", "snow"),
+
+    1:santa = new NPC ( [], [], [], [23], 1, "Santa", "https://gamepedia.cursecdn.com/terraria_gamepedia/5/58/Santa_Claus.png?version=82d138f0b0f830225b3ed988612ff8a8", "snow"),
+
+    // Jungle
+    2:painter = new NPC ( [3], [21], [14, 24], [], 2, "Painter","https://gamepedia.cursecdn.com/terraria_gamepedia/2/24/Painter.png?version=c7deb852cb9bd6953ab12c9c6075f49e", "jungle"),
+
+    3:dryad = new NPC ( [], [4, 14], [5], [17], 3, "Dryad","https://gamepedia.cursecdn.com/terraria_gamepedia/5/5c/Dryad.png?version=d7811816a9b3908aec153990d5616255", "jungle"),
+
+    4:witch_doctor = new NPC ( [], [3, 15], [19], [14], 4, "Witch Doctor","https://gamepedia.cursecdn.com/terraria_gamepedia/a/ac/Witch_Doctor.png?version=4dbe2d779343bed91b7e6aa335774d42", "jungle"),
+
+    // Ocean
+    5:angler = new NPC ( [], [12, 21, 23], [], [20], 5, "Angler","https://gamepedia.cursecdn.com/terraria_gamepedia/b/bf/Angler.png?version=e4c31b2d8bed57a0240f6c5179434262", "ocean"),
+
+    6:pirate = new NPC ( [5], [20], [7], [15], 6, "Pirate","https://gamepedia.cursecdn.com/terraria_gamepedia/7/7d/Pirate.png?version=f6e620facfc8a054f45020908b09951d", "ocean"),
+
+    7:stylist = new NPC ( [8], [6], [20], [11], 7, "Stylist","https://gamepedia.cursecdn.com/terraria_gamepedia/1/16/Stylist.png?version=a524282e9c37f916526f5acf0d407444", "ocean"),
+
+    // Desert
+    8:dye_trader = new NPC ( [], [10, 2], [9], [6], 8, "Dye Trader","https://gamepedia.cursecdn.com/terraria_gamepedia/5/51/Dye_Trader.png?version=195b01ae30357dbf07b3bce964929155", "desert"),
+
+    9:steampunker = new NPC ( [24], [2], [3, 22, 21], [], 9, "Steampunker","https://gamepedia.cursecdn.com/terraria_gamepedia/8/82/Steampunker.png?version=b3ce3587608df731e38a41756aafbac7", "desert"),
+
+    10:arms_dealer = new NPC ( [19], [9], [17], [12], 10, "Arms Dealer","https://gamepedia.cursecdn.com/terraria_gamepedia/9/9e/Arms_Dealer.png?version=d05689f02d0f1bb54d5e256bf2393f9b", "desert"),
+
+    // Underground
+    11:goblin_tinkerer = new NPC ( [0], [8], [13], [7], 11, "Goblin Tinkerer","https://gamepedia.cursecdn.com/terraria_gamepedia/8/86/Goblin_Tinkerer.png?version=4bda2717de60d6f401487393ba8c83e9", "underground"),
+
+    12:demolitionist = new NPC ( [20], [0], [10, 11], [], 12, "Demolitionist","https://gamepedia.cursecdn.com/terraria_gamepedia/6/6e/Demolitionist.png?version=540a13e6746b5ba60c1b32056f9d7883", "underground"),
+
+    13:clothier = new NPC ( [14], [23], [19], [0], 13, "Clothier","https://gamepedia.cursecdn.com/terraria_gamepedia/d/d2/Clothier.png?version=e323c5e5983510225a5955c71c187a9a", "underground"),
+
+    // Mushroom
+    14:truffle = new NPC ( [15], [3], [13], [4], 14, "Truffle","https://gamepedia.cursecdn.com/terraria_gamepedia/f/f2/Truffle.png?version=cc94bd78316883d268b7c1285feb1f99", "mushroom"),
+
+    // Forest
+    15:guide = new NPC ( [], [13, 16], [9], [2], 15, "Guide","https://gamepedia.cursecdn.com/terraria_gamepedia/7/7f/Guide.png?version=4e4e0ae76bcfff5ba3496aa221010f76", "forest"),
+
+    16:zoologist = new NPC ( [4], [17], [5], [10], 16, "Zoologist",'https://gamepedia.cursecdn.com/terraria_gamepedia/6/61/Zoologist.png?version=efcb0a55c160ca3b92a0251fe4285957', "forest"),
+
+    17:golfer = new NPC ( [5], [2, 16], [6], [18], 17, "Golfer",'https://gamepedia.cursecdn.com/terraria_gamepedia/1/1a/Golfer.png?version=7c6d06e1b7f9f3396e80dbd5f20ef6ba', "forest"),
+
+    18:merchant = new NPC ( [], [17, 19], [23], [5], 18, "Merchant",'https://gamepedia.cursecdn.com/terraria_gamepedia/1/19/Merchant.png?version=56631d5fcd37a112c1214e79f5844071', "forest"),
+
+    // Hallow
+    19:nurse = new NPC ( [10], [22], [3, 21], [16], 19, "Nurse",'https://gamepedia.cursecdn.com/terraria_gamepedia/c/cc/Nurse.png?version=6592bec50bccfdeed4636d976baa1376', "hallow"),
+
+    20:tavernkeep = new NPC ( [12], [11], [15], [8], 20, "Taverkeep",'https://gamepedia.cursecdn.com/terraria_gamepedia/8/81/Tavernkeep.png?version=7754c9355e80f4c2284284f111d119b7', "hallow"),
+
+    21:party_girl = new NPC ( [22, 16], [7], [18], [23], 21, "Party Girl", "https://gamepedia.cursecdn.com/terraria_gamepedia/a/a8/Party_Girl.png?version=73d4b3b98bcc5cd10174c85e804fbacb", "hallow"),
+
+    22:wizard = new NPC ( [17], [18], [4], [24], 22, "Wizard",'https://gamepedia.cursecdn.com/terraria_gamepedia/c/c7/Wizard.png?version=b24ce40767d79a44c648433664fa454c', "hallow"),
+
+    // Snow part 1
+    23:tax_collector = new NPC ( [18], [21], [12, 0], [1], 23, "Tax Collector",'https://gamepedia.cursecdn.com/terraria_gamepedia/7/75/Tax_Collector.png?version=2f05b35625f5869b7cd402f8f8cb89c6', "snow"),
+
+    24:cyborg = new NPC ( [], [9, 6, 7], [16], [22], 24, "Cyborg",'https://gamepedia.cursecdn.com/terraria_gamepedia/a/a3/Cyborg.png?version=2571cdd2f182449775a8784e7d9a9d27', "snow"),
+  };
+
+  /*
+    Function to draw the connections between NPCs based on relationship
+  */
+  const drawNPC = (npc) => {
+    /*
+      Clear old lines
+    */
+    $(".line").remove();
+
+    /*
+      Set the background image based on the prefered biome.
+    */
+    changeBiome(npc.biome);
+
+    /*
+      Set the character's name in the table
+    */
+    $("#NPCName").text(npc.name);
+
+    /*
+      Add the HATE connections to the table
+    */
+    if(npc.hates.length > 0){
+        let hatesList = []
+        for(let hater of npc.hates){
+            drawLineByDegree(25, npc.me, hater, hate)
+            hatesList.push(npcs[hater].name);
         }
-        drawBox(25, i, 1, color);
-    }
+        $(".tHate").text(hatesList.join(", \n"));
+    } else {$(".tHate").text("None");}
+    /*
+      Add the DISLIKE connections to the table
+    */
+    if(npc.dislikes.length > 0){
+        let dislikesList = []
+        for(let disliker of npc.dislikes){
+            drawLineByDegree(25, npc.me, disliker, dislike)
+            dislikesList.push(npcs[disliker].name);
+        }
+        $(".tDislike").text(dislikesList.join(", \n"));
+    } else {$(".tDislike").text("None");}
+    /*
+      Add the LIKE connections to the table
+    */
+    if(npc.likes.length > 0){
+        let likesList = []
+        for(let liker of npc.likes){
+            drawLineByDegree(25, npc.me, liker, like)
+            likesList.push(npcs[liker].name);
+        }
+        $(".tLike").text(likesList.join(", \n"));
+    } else {$(".tLike").text("None");}
+    /*
+      Add the LOVE connections to the table
+    */
+    if(npc.loves.length > 0){
+        let lovesList = []
+        for(let lover of npc.loves){
+            drawLineByDegree(25, npc.me, lover, love)
+            lovesList.push(npcs[lover].name);
+        }
+        $(".tLove").text(lovesList.join(", \n"));
+    } else {$(".tLove").text("None");}
+  };
 
-    let love = "hotpink";
-    let like = "chartreuse";
-    let dislike = "rgb(220, 93, 20)";
-    let hate = "darkred";
-    //drawLineByDegree(25, 5, 1, dislike);
-    //drawLineByDegree(25, 12, 1, like);
-    //drawLineByDegree(25, 1, 3, love);
-
-    function NPC (loves, likes, dislikes, hates, me, name, imgUrl, biome){
-        this.loves = loves,
-        this.likes = likes,
-        this.dislikes = dislikes,
-        this.hates = hates,
-        this.me = me,
-        this.name = name,
-        this.imgUrl = imgUrl,
-        this.biome = biome
-    }
-
-    const npcs = {
-        // Love, Like, Hate, Me
-        // Snow part 2
-        0:mechanic = new NPC ( [11], [24], [10], [13], 0, "Mechanic","https://gamepedia.cursecdn.com/terraria_gamepedia/5/55/Mechanic.png?version=ee3e7ebf0b4fe821b1387a79fef7fba5", "snow"),
-        1:santa = new NPC ( [], [], [], [23], 1, "Santa", "https://gamepedia.cursecdn.com/terraria_gamepedia/5/58/Santa_Claus.png?version=82d138f0b0f830225b3ed988612ff8a8", "snow"), // none
-        // Jungle
-        2:painter = new NPC ( [3], [21], [14, 24], [], 2, "Painter","https://gamepedia.cursecdn.com/terraria_gamepedia/2/24/Painter.png?version=c7deb852cb9bd6953ab12c9c6075f49e", "jungle"),
-        3:dryad = new NPC ( [], [4, 14], [5], [17], 3, "Dryad","https://gamepedia.cursecdn.com/terraria_gamepedia/5/5c/Dryad.png?version=d7811816a9b3908aec153990d5616255", "jungle"),
-        4:witch_doctor = new NPC ( [], [3, 15], [19], [14], 4, "Witch Doctor","https://gamepedia.cursecdn.com/terraria_gamepedia/a/ac/Witch_Doctor.png?version=4dbe2d779343bed91b7e6aa335774d42", "jungle"),
-        // Ocean
-        5:angler = new NPC ( [], [12, 21, 23], [], [20], 5, "Angler","https://gamepedia.cursecdn.com/terraria_gamepedia/b/bf/Angler.png?version=e4c31b2d8bed57a0240f6c5179434262", "ocean"),
-        6:pirate = new NPC ( [5], [20], [7], [15], 6, "Pirate","https://gamepedia.cursecdn.com/terraria_gamepedia/7/7d/Pirate.png?version=f6e620facfc8a054f45020908b09951d", "ocean"),
-        7:stylist = new NPC ( [8], [6], [20], [11], 7, "Stylist","https://gamepedia.cursecdn.com/terraria_gamepedia/1/16/Stylist.png?version=a524282e9c37f916526f5acf0d407444", "ocean"),
-        // Desert
-        8:dye_trader = new NPC ( [], [10, 2], [9], [6], 8, "Dye Trader","https://gamepedia.cursecdn.com/terraria_gamepedia/5/51/Dye_Trader.png?version=195b01ae30357dbf07b3bce964929155", "desert"),
-        9:steampunker = new NPC ( [24], [2], [3, 22, 21], [], 9, "Steampunker","https://gamepedia.cursecdn.com/terraria_gamepedia/8/82/Steampunker.png?version=b3ce3587608df731e38a41756aafbac7", "desert"),
-        10:arms_dealer = new NPC ( [19], [9], [17], [12], 10, "Arms Dealer","https://gamepedia.cursecdn.com/terraria_gamepedia/9/9e/Arms_Dealer.png?version=d05689f02d0f1bb54d5e256bf2393f9b", "desert"),
-        // Underground
-        11:goblin_tinkerer = new NPC ( [0], [8], [13], [7], 11, "Goblin Tinkerer","https://gamepedia.cursecdn.com/terraria_gamepedia/8/86/Goblin_Tinkerer.png?version=4bda2717de60d6f401487393ba8c83e9", "underground"),
-        12:demolitionist = new NPC ( [20], [0], [10, 11], [], 12, "Demolitionist","https://gamepedia.cursecdn.com/terraria_gamepedia/6/6e/Demolitionist.png?version=540a13e6746b5ba60c1b32056f9d7883", "underground"),
-        13:clothier = new NPC ( [14], [23], [19], [0], 13, "Clothier","https://gamepedia.cursecdn.com/terraria_gamepedia/d/d2/Clothier.png?version=e323c5e5983510225a5955c71c187a9a", "underground"),
-        // Mushroom
-        14:truffle = new NPC ( [15], [3], [13], [4], 14, "Truffle","https://gamepedia.cursecdn.com/terraria_gamepedia/f/f2/Truffle.png?version=cc94bd78316883d268b7c1285feb1f99", "mushroom"),
-        // Forest
-        15:guide = new NPC ( [], [13, 16], [9], [2], 15, "Guide","https://gamepedia.cursecdn.com/terraria_gamepedia/7/7f/Guide.png?version=4e4e0ae76bcfff5ba3496aa221010f76", "forest"),
-        16:zoologist = new NPC ( [4], [17], [5], [10], 16, "Zoologist",'https://gamepedia.cursecdn.com/terraria_gamepedia/6/61/Zoologist.png?version=efcb0a55c160ca3b92a0251fe4285957', "forest"),
-        17:golfer = new NPC ( [5], [2, 16], [6], [18], 17, "Golfer",'https://gamepedia.cursecdn.com/terraria_gamepedia/1/1a/Golfer.png?version=7c6d06e1b7f9f3396e80dbd5f20ef6ba', "forest"),
-        18:merchant = new NPC ( [], [17, 19], [23], [5], 18, "Merchant",'https://gamepedia.cursecdn.com/terraria_gamepedia/1/19/Merchant.png?version=56631d5fcd37a112c1214e79f5844071', "forest"),
-        // Hallow
-        19:nurse = new NPC ( [10], [22], [3, 21], [16], 19, "Nurse",'https://gamepedia.cursecdn.com/terraria_gamepedia/c/cc/Nurse.png?version=6592bec50bccfdeed4636d976baa1376', "hallow"),      
-        20:tavernkeep = new NPC ( [12], [11], [15], [8], 20, "Taverkeep",'https://gamepedia.cursecdn.com/terraria_gamepedia/8/81/Tavernkeep.png?version=7754c9355e80f4c2284284f111d119b7', "hallow"),
-        21:party_girl = new NPC ( [22, 16], [7], [18], [23], 21, "Party Girl", "https://gamepedia.cursecdn.com/terraria_gamepedia/a/a8/Party_Girl.png?version=73d4b3b98bcc5cd10174c85e804fbacb", "hallow"),
-        22:wizard = new NPC ( [17], [18], [4], [24], 22, "Wizard",'https://gamepedia.cursecdn.com/terraria_gamepedia/c/c7/Wizard.png?version=b24ce40767d79a44c648433664fa454c', "hallow"),
-        // Snow part 1
-        23:tax_collector = new NPC ( [18], [21], [12, 0], [1], 23, "Tax Collector",'https://gamepedia.cursecdn.com/terraria_gamepedia/7/75/Tax_Collector.png?version=2f05b35625f5869b7cd402f8f8cb89c6', "snow"),
-        24:cyborg = new NPC ( [], [9, 6, 7], [16], [22], 24, "Cyborg",'https://gamepedia.cursecdn.com/terraria_gamepedia/a/a3/Cyborg.png?version=2571cdd2f182449775a8784e7d9a9d27', "snow"),
-    };
-
-    const drawNPC = (npc) => {
-        $(".line").remove()
-
-        changeBiome(npc.biome);
-
-        console.log(`NPC: ${npc.name}, ${npc.me}
-LOVE:${npc.loves}
-LIKE:${npc.likes}
-DISL:${npc.dislikes}`)
-        if(npc.hates.length > 0){
-            let hatesList = []
-            for(let hater of npc.hates){
-                drawLineByDegree(25, npc.me, hater, hate)
-                hatesList.push(npcs[hater].name);
-            }
-            $(".tHate").text(hatesList.join(", \n"));
-        } else {$(".tHate").text("None");}
-
-        if(npc.dislikes.length > 0){
-            let dislikesList = []
-            for(let disliker of npc.dislikes){
-                drawLineByDegree(25, npc.me, disliker, dislike)
-                dislikesList.push(npcs[disliker].name);
-            }
-            $(".tDislike").text(dislikesList.join(", \n"));
-        } else {$(".tDislike").text("None");}
-
-        if(npc.likes.length > 0){
-            let likesList = []
-            for(let liker of npc.likes){
-                drawLineByDegree(25, npc.me, liker, like)
-                likesList.push(npcs[liker].name);
-            }            
-            $(".tLike").text(likesList.join(", \n"));
-        } else {$(".tLike").text("None");}
-        
-        if(npc.loves.length > 0){
-            let lovesList = []
-            for(let lover of npc.loves){
-                drawLineByDegree(25, npc.me, lover, love)
-                lovesList.push(npcs[lover].name);
-            }
-            $(".tLove").text(lovesList.join(", \n"));
-        } else {$(".tLove").text("None");}
-        // Info
-        $("#NPCName").text(npc.name);
-
-    };
-
-// OKAY. SO NOW I NEED TO ADD THE OTHER ASSETS AND BREAK EVERYTHING!
-
-// How do I even integerate the images into the svg? Is that a thing?
-// It is a think
-
-// For all of npcs{ draw all.imgUrl } 
-
-for(let character in npcs){
+  /*
+    Loops through the NPCs and draws the sprites
+  */
+  for(let character in npcs){
     let npc = document.createElementNS("http://www.w3.org/2000/svg","image");
     npc.setAttribute("href",npcs[character].imgUrl);
     npc.setAttribute("x",size/2.2);
@@ -432,48 +393,25 @@ for(let character in npcs){
     npc.setAttribute("transform-origin","50% 50%");
     npc.setAttribute("style",`transform:rotate(calc((360deg /25)*(${6.45+parseFloat(character)}))`);
     npc.style.cursor = "pointer";
-    
     npc.setAttribute("onclick",`drawNPC(npcs[${parseInt(character)}])`);
-    viewBox.appendChild(npc);    
-}
+    viewBox.appendChild(npc);
+  };
 
-/*let pgl = npcs[0].imgUrl;
-let pg = document.createElementNS("http://www.w3.org/2000/svg","image");
-pg.setAttribute("href",pgl);
-pg.setAttribute("x",size/2.2);
-pg.setAttribute("y",1.);
-pg.setAttribute("width", .30);
-pg.setAttribute("height", .44);
-pg.setAttribute("class","pg");
-pg.setAttribute("transform-origin","50% 50%");
-pg.setAttribute("style","transform:rotate(calc((360deg /25)*6.45 ))");
-pg.setAttribute("onclick","drawNPC(npcs[22])");
-
-viewBox.appendChild(pg);// This is all together a better method for what I was doing.*/
-    
-    /*
-So I could do a table and set the header to be the name of the npc
-then set the 3 columns to be LOVE LIKE HATE
-then set the rows to be the names of the npcs that fit that category
-
-Also add the biome that the NPC likes, and then link that to the pylon image
-
-Gotta add hates
-    */
-
-    const changeBiome = (biome) => {
-        const biomes = {
-            forest: "https://gamepedia.cursecdn.com/terraria_gamepedia/thumb/f/fb/BiomeBannerForest.png/300px-BiomeBannerForest.png?version=b015b4e3f437a29b5dcebb6c9e13180d",
-            hallow:"https://gamepedia.cursecdn.com/terraria_gamepedia/thumb/1/1b/BiomeBannerHallow.png/300px-BiomeBannerHallow.png?version=f7acf4916cc16114ba67395677bbeda7",
-            snow:"https://gamepedia.cursecdn.com/terraria_gamepedia/thumb/a/aa/BiomeBannerSnow.png/300px-BiomeBannerSnow.png?version=1eaa0cb1b727aaefa85552080c4d8c2d",
-            jungle:"https://gamepedia.cursecdn.com/terraria_gamepedia/thumb/7/7e/BiomeBannerJungle.png/300px-BiomeBannerJungle.png?version=4df154ccc8a6c977d8002486d248a62b",
-            ocean:"https://gamepedia.cursecdn.com/terraria_gamepedia/thumb/c/c2/BiomeBannerOcean.png/300px-BiomeBannerOcean.png?version=cf73b72a45652c40a7bd31af4731f741",
-            desert:"https://gamepedia.cursecdn.com/terraria_gamepedia/thumb/e/e5/BiomeBannerDesert.png/300px-BiomeBannerDesert.png?version=2b69bf4e55dbeacf0e4b06d13f4c6330",
-            underground:"https://gamepedia.cursecdn.com/terraria_gamepedia/2/26/BiomeBannerCavern.png?version=a0467540215886d294d6010fec7f8be1",
-            mushroom:"https://gamepedia.cursecdn.com/terraria_gamepedia/thumb/8/87/BiomeBannerGlowingMushroom.png/300px-BiomeBannerGlowingMushroom.png?version=f863bd6273cc452a297c5a889dbac514",
-        }
-
-        $(":root").css("--bgi", `url(${biomes[biome]})`);
-        console.log(`url(${biomes[biome]})`)
-    }
+  /*
+    Function to change the background image
+  */
+  const changeBiome = (biome) => {
+    const biomes = {
+        forest: "https://gamepedia.cursecdn.com/terraria_gamepedia/thumb/f/fb/BiomeBannerForest.png/300px-BiomeBannerForest.png?version=b015b4e3f437a29b5dcebb6c9e13180d",
+        hallow:"https://gamepedia.cursecdn.com/terraria_gamepedia/thumb/1/1b/BiomeBannerHallow.png/300px-BiomeBannerHallow.png?version=f7acf4916cc16114ba67395677bbeda7",
+        snow:"https://gamepedia.cursecdn.com/terraria_gamepedia/thumb/a/aa/BiomeBannerSnow.png/300px-BiomeBannerSnow.png?version=1eaa0cb1b727aaefa85552080c4d8c2d",
+        jungle:"https://gamepedia.cursecdn.com/terraria_gamepedia/thumb/7/7e/BiomeBannerJungle.png/300px-BiomeBannerJungle.png?version=4df154ccc8a6c977d8002486d248a62b",
+        ocean:"https://gamepedia.cursecdn.com/terraria_gamepedia/thumb/c/c2/BiomeBannerOcean.png/300px-BiomeBannerOcean.png?version=cf73b72a45652c40a7bd31af4731f741",
+        desert:"https://gamepedia.cursecdn.com/terraria_gamepedia/thumb/e/e5/BiomeBannerDesert.png/300px-BiomeBannerDesert.png?version=2b69bf4e55dbeacf0e4b06d13f4c6330",
+        underground:"https://gamepedia.cursecdn.com/terraria_gamepedia/2/26/BiomeBannerCavern.png?version=a0467540215886d294d6010fec7f8be1",
+        mushroom:"https://gamepedia.cursecdn.com/terraria_gamepedia/thumb/8/87/BiomeBannerGlowingMushroom.png/300px-BiomeBannerGlowingMushroom.png?version=f863bd6273cc452a297c5a889dbac514",
+    };
+    $(":root").css("--bgi", `url(${biomes[biome]})`);
+    console.log(`url(${biomes[biome]})`)
+  };
 </script>
