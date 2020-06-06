@@ -23,10 +23,10 @@
 </style>
 
 <body>
-    <!--
+    <div id="body">
 
-        <svg id=viewBox ></svg>
-    -->
+        
+    </div>
     <p style="color:crimson">Red = Dislike</p>
     <p style="color:chartreuse">Green = Like</p>
     <p style="color:hotpink">Pink = Love</p>
@@ -35,7 +35,7 @@
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <!-- I added jQuery super late into to the project so I only used it for like one thing :( -->
 <script>
-    let body = document.getElementsByTagName("body")[0]
+    let body = document.getElementById("body")
     let viewBox = document.createElementNS("http://www.w3.org/2000/svg","svg")
     viewBox.setAttribute("id","viewBox");
     let ref = body.getElementsByTagName("p")[0]
