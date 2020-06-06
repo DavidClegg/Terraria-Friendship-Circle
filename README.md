@@ -1,6 +1,6 @@
 # radial-terraria-thing
 
-If I were to update this further I would:
- - Add a background image
- - change the background image based on the prefered climate of the selected NPC
- - Add the biome pylon to the center of the page
+I think I'm about done with this as a mock up.
+To make it look better I would probably have to redo a ton of it.
+
+I hope someone likes it ♥
