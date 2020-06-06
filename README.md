@@ -1,4 +1,4 @@
-# radial-terraria-thing
+# Terraria Circle of Friendship
 
 I think I'm about done with this as a mock up.
 To make it look better I would probably have to redo a ton of it.
